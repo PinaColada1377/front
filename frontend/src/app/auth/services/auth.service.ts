@@ -8,9 +8,19 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
 
+  private URL = 'http://localhost:3000/users/'
+
   constructor( private http: HttpClient) { }
 
-  register(login: string, firstName: string, password: string, lastName: string, email: string): Observable<User> {
-    return this.http.post<User>('http://localhost:3000/users/add', {login, firstName, password, lastName, email})
+  getToken(): string {
+    return localStorage.getItem('token')
+  }
+
+  signUp(login: string, firstName: string, password: string, lastName: string, email: string): Observable<User> {
+    return this.http.post<User>(`${this.URL}/add`, {login, firstName, password, lastName, email})
+  }
+
+  logIn(login: string, password: string): Observable<User> {
+    return this.http.post<User>(`${this.URL}/login`, {login, password})
   }
 }

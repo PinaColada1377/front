@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StoreModule } from '@ngrx/store';
-import * as fromAuth from './store/auth.reducer';
+import { HttpClientModule } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
-import { AuthEffects } from './store/auth.effects';
+
 import { RegisterComponent } from './components/register/register.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AuthService } from './services/auth.service';
@@ -12,6 +11,11 @@ import { RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthEffects } from './store/auth.effects';
+import { StoreModule } from '@ngrx/store';
+import { reducer } from './store/auth.reducer';
+
+
 
 
 @NgModule({
@@ -23,11 +27,12 @@ import { MatButtonModule } from '@angular/material/button';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    StoreModule.forFeature('auth', fromAuth.authReducer),
-    EffectsModule.forFeature([AuthEffects]),
+    HttpClientModule,
+    StoreModule.forRoot(reducer,{}),
+    EffectsModule.forRoot([AuthEffects]),
   ],
   declarations: [RegisterComponent, LoginComponent],
-  exports: [RegisterComponent],
-  providers: [AuthService]
+  providers: [AuthService],
+  bootstrap: [RegisterComponent, LoginComponent],
 })
 export class AuthModule { }

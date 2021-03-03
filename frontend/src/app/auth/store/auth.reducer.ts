@@ -1,53 +1,57 @@
-import { authInitialState, AuthState } from './auth.state';
-import { AuthAction, AuthActionTypes } from './auth.actions';
+import { User } from '../models/user.interface'
+import { All, AuthActionTypes } from './auth.actions';
 
-export function authReducer(state = authInitialState, action: AuthAction): AuthState {
+export interface State {
+  isAuthenticated: boolean;
+  user: User | null;
+  errorMessage: string | null;
+}
+
+export const initialState: State = {
+  isAuthenticated: false,
+  user: null,
+  errorMessage: null
+};
+
+
+export function reducer(state = initialState, action: All): State {
   switch (action.type) {
-
     case AuthActionTypes.LOGIN_SUCCESS: {
-      return Object.assign({}, state, {
-        user: action.payload.user,
-        isLoggedIn: true,
-        isLoading: false,
-        error: null
-      });
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: {
+          token: action.payload.token,
+          login: action.payload.email
+        },
+        errorMessage: null
+      };
     }
-
-    case AuthActionTypes.UPDATE_PROFILE_SUCCESS: {
-      return Object.assign({}, state, {
-        user: action.payload.user,
-      });
+    case AuthActionTypes.LOGIN_FAILURE: {
+      return {
+        ...state,
+        errorMessage: 'Incorrect email and/or password.'
+      };
     }
-
-    case AuthActionTypes.UPDATE_USER_ROLE: {
-      return Object.assign({}, state, {
-        isAdmin: action.payload.isAdmin
-      });
+    case AuthActionTypes.SIGNUP_SUCCESS: {
+      return {
+        ...state,
+        isAuthenticated: true,
+        user: {
+          token: action.payload.token,
+          email: action.payload.email
+        },
+        errorMessage: null
+      };
     }
-
-    case AuthActionTypes.LOGIN_FAILED: {
-      return Object.assign({}, state, {
-        user: null,
-        isLoading: false,
-        isLoggedIn: false
-      });
+    case AuthActionTypes.SIGNUP_FAILURE: {
+      return {
+        ...state,
+        errorMessage: 'That email is already in use.'
+      };
     }
-
-    case AuthActionTypes.AUTH_ERROR: {
-      return Object.assign({}, state, {
-        error: action.payload.error
-      });
-    }
-
-    case AuthActionTypes.LOGOUT_COMPLETED: {
-      return Object.assign({}, state, {
-        user: null,
-        isLoading: false,
-        isLoggedIn: false
-      });
-    }
-
-    default:
+    default: {
       return state;
+    }
   }
 }

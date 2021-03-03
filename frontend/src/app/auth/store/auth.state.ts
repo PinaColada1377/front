@@ -1,17 +1,7 @@
-import { User } from '../models/user.interface';
+import * as auth from "./auth.reducer";
+
 
 export interface AuthState {
-  user: User | null;
-  isAdmin: boolean;
-  isLoggedIn: boolean;
-  isLoading: boolean;
-  error: any;
+  authState: auth.State;
 }
 
-export const authInitialState: AuthState = {
-  user: null,
-  isAdmin: false,
-  isLoggedIn: false,
-  isLoading: true,
-  error: null
-};

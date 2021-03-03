@@ -1,52 +1,100 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
 import { Router } from '@angular/router';
-import { Observable, of, defer } from 'rxjs';
-import { map, switchMap, catchError, tap, take } from 'rxjs/operators';
+import { Actions, createEffect, Effect, ofType } from '@ngrx/effects';
+import { Observable,  of } from 'rxjs';
+import { map, switchMap, catchError, tap } from 'rxjs/operators';
 
-import * as auth from '../store/auth.actions'
-import { User } from '../models/user.interface'
 import { AuthService } from '../services/auth.service';
+import { 
+  AuthActionTypes,
+  LogIn, 
+  LogInSuccess, 
+  LogInFailure,
+  SignUp,
+  SignUpSuccess, 
+  SignUpFailure 
+} from './auth.actions';
 
-@Injectable()
+
+
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthEffects {
-    constructor(
-        private actions$: Actions,
-        private authService: AuthService,
-        private router: Router
-    ) { }
 
+  constructor(
+    private actions: Actions,
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
-    @Effect()
-    registerAction$ = this.actions$.pipe(
-      ofType(auth.AuthActionTypes.REGISTER_REQUESTED),
-      map((action: auth.RegisterRequested) => action.payload),
-      switchMap(payload =>
-        this.authService.register(payload.email, payload.firstName, payload.lastName, payload.login, payload.password).pipe(
-          map((res: any) => {
-            const user = {
-              login: payload.login || res.user.login,
-              firstName: payload.firstName || res.user.firstName,
-              lastName: payload.lastName || res.user.lastName,
-              email: payload.email || res.user.email,
-              password: payload.password || res.user.password
-            };
-            console.log(user)
-            return user;
+  @Effect()
+  LogIn: Observable<any> = this.actions
+    .pipe(
+      ofType(AuthActionTypes.LOGIN),
+      map((action: LogIn) => action.payload),
+      switchMap(payload => {
+        return this.authService.logIn(payload.login, payload.password)
+        .pipe(
+          map((user) => {
+            console.log(user);
+            return new LogInSuccess({token: user.token, login: payload.email});
           }),
-          switchMap( (user: User) => {
-            return [
-              new auth.RegisterCompleted(),
-              new auth.LoginSuccess({ user }),
-              new auth.SaveUser( { user })
-            ];
-          }),
-          tap(() => { this.router.navigateByUrl('login'); }),
-          catchError(error => of(new auth.AuthError({ error })))
+          catchError((error) => {
+            console.log(error);
+            return of (new LogInSuccess({ error: error}))
+          })
         )
-      )
+      })
+    )
+
+  @Effect({ dispatch: false })
+    LogInSuccess: Observable<any> = this.actions.pipe(
+      ofType(AuthActionTypes.LOGIN_SUCCESS),
+      tap((user) => {
+        localStorage.setItem('token', user.payload.token);
+        this.router.navigateByUrl('/');
+    })
+  );
+
+  @Effect({ dispatch: false })
+    LogInFailure: Observable<any> = this.actions.pipe(
+      ofType(AuthActionTypes.LOGIN_FAILURE)
+  );
+
+  @Effect()
+  SignUp: Observable<any> = this.actions
+    .pipe(
+      ofType(AuthActionTypes.SIGNUP),
+      map((action: SignUp) => action.payload),
+      switchMap(payload => {
+        return this.authService.signUp(payload.login, payload.password, payload.firstName, payload.lastName, payload.email)
+        .pipe(
+          map((user) => {
+            console.log(user);
+            return new SignUpSuccess({token: user.token, login: payload.login});
+          }),
+          catchError((error) => {
+            console.log(error);
+            return of (new SignUpFailure({ error: error}))
+          })
+        )
+      })
+    )
+
+  @Effect({ dispatch: false })
+    SignUpSuccess: Observable<any> = this.actions.pipe(
+      ofType(AuthActionTypes.SIGNUP_SUCCESS),
+      tap((user) => {
+        localStorage.setItem('token', user.payload.token);
+        this.router.navigateByUrl('/');
+      })
     );
 
+  @Effect({ dispatch: false })
+    SignUpFailure: Observable<any> = this.actions.pipe(
+      ofType(AuthActionTypes.SIGNUP_FAILURE)
+    );
 
 }
-
