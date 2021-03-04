@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
 
 import { RegisterComponent } from './components/register/register.component';
@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthEffects } from './store/auth.effects';
 import { StoreModule } from '@ngrx/store';
 import { reducer } from './store/auth.reducer';
+import { ErrorInterceptor, TokenInterceptor } from './services/token.interceptor';
 
 
 
@@ -32,7 +33,19 @@ import { reducer } from './store/auth.reducer';
     EffectsModule.forRoot([AuthEffects]),
   ],
   declarations: [RegisterComponent, LoginComponent],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [RegisterComponent, LoginComponent],
 })
 export class AuthModule { }

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { LogIn } from '../../store/auth.actions';
+import { selectAuthState } from '../../store/auth.selectors';
 import { AuthState } from '../../store/auth.state';
 
 
@@ -13,8 +15,11 @@ import { AuthState } from '../../store/auth.state';
 export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
+  getState: Observable<any>;
 
-  constructor(private store: Store<AuthState>) { }
+  constructor(private store: Store<AuthState>) { 
+    this.getState = this.store.select(selectAuthState)
+  }
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({

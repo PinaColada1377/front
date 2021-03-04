@@ -1,17 +1,5 @@
-import { User } from '../models/user.interface'
 import { All, AuthActionTypes } from './auth.actions';
-
-export interface State {
-  isAuthenticated: boolean;
-  user: User | null;
-  errorMessage: string | null;
-}
-
-export const initialState: State = {
-  isAuthenticated: false,
-  user: null,
-  errorMessage: null
-};
+import { initialState, State } from './auth.state';
 
 
 export function reducer(state = initialState, action: All): State {
@@ -49,6 +37,9 @@ export function reducer(state = initialState, action: All): State {
         ...state,
         errorMessage: 'That email is already in use.'
       };
+    }
+    case AuthActionTypes.LOGOUT: {
+      return initialState;
     }
     default: {
       return state;

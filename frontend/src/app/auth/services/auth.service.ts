@@ -16,8 +16,8 @@ export class AuthService {
     return localStorage.getItem('token')
   }
 
-  signUp(login: string, firstName: string, password: string, lastName: string, email: string): Observable<User> {
-    return this.http.post<User>(`${this.URL}/add`, {login, firstName, password, lastName, email})
+  signUp(login: string, firstName: string, lastName: string, password: string, email: string): Observable<User> {
+    return this.http.post<User>(`${this.URL}/add`, {login, firstName, lastName, password, email})
   }
 
   logIn(login: string, password: string): Observable<User> {

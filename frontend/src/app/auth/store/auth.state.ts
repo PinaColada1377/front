@@ -1,7 +1,18 @@
-import * as auth from "./auth.reducer";
+import { User } from "../models/user.interface";
+
+export interface State {
+  isAuthenticated: boolean;
+  user: User | null;
+  errorMessage: string | null;
+}
+
+export const initialState: State = {
+  isAuthenticated: false,
+  user: null,
+  errorMessage: null
+};
 
 
 export interface AuthState {
-  authState: auth.State;
+  authState: State;
 }
-

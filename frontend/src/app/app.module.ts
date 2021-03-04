@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EffectsModule } from '@ngrx/effects';
 import { LayoutsModule } from '../app/layouts/layouts.module'
 import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 
 
 
@@ -20,6 +21,7 @@ import { AuthModule } from './auth/auth.module';
     LayoutsModule,
     AuthModule,
     BrowserAnimationsModule,
+    AdminModule,
     //EffectsModule.forRoot([])
   ],
   providers: [],

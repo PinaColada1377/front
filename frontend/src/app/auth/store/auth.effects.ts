@@ -43,7 +43,7 @@ export class AuthEffects {
           }),
           catchError((error) => {
             console.log(error);
-            return of (new LogInSuccess({ error: error}))
+            return of (new LogInFailure({ error: error}))
           })
         )
       })
@@ -69,7 +69,7 @@ export class AuthEffects {
       ofType(AuthActionTypes.SIGNUP),
       map((action: SignUp) => action.payload),
       switchMap(payload => {
-        return this.authService.signUp(payload.login, payload.password, payload.firstName, payload.lastName, payload.email)
+        return this.authService.signUp(payload.login, payload.firstName, payload.lastName, payload.password, payload.email)
         .pipe(
           map((user) => {
             console.log(user);
@@ -95,6 +95,14 @@ export class AuthEffects {
   @Effect({ dispatch: false })
     SignUpFailure: Observable<any> = this.actions.pipe(
       ofType(AuthActionTypes.SIGNUP_FAILURE)
+    );
+
+  @Effect({ dispatch: false })
+    public LogOut: Observable<any> = this.actions.pipe(
+      ofType(AuthActionTypes.LOGOUT),
+      tap((user) => {
+        localStorage.removeItem('token');
+      })
     );
 
 }

@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { LogOut } from 'src/app/auth/store/auth.actions';
+
 
 @Component({
   selector: 'app-main',
@@ -7,9 +10,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainComponent implements OnInit {
 
-  constructor() { }
+  constructor(private store: Store ) {
+  }
 
   ngOnInit(): void {
   }
 
+  logOut(): void {
+    this.store.dispatch(new LogOut)
+  }
 }
