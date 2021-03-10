@@ -1,48 +1,62 @@
-import { All, AuthActionTypes } from './auth.actions';
-import { initialState, State } from './auth.state';
+import { authInitialState, AuthState } from './auth.state';
+import { AuthAction, AuthActionTypes } from './auth.actions';
 
-
-export function reducer(state = initialState, action: All): State {
+export function authReducer(state = authInitialState, action: AuthAction): AuthState {
   switch (action.type) {
+
     case AuthActionTypes.LOGIN_SUCCESS: {
       return {
         ...state,
-        isAuthenticated: true,
         user: {
-          token: action.payload.token,
-          login: action.payload.email
+          token: action.payload.user.token,
+          login: action.payload.user.login
         },
-        errorMessage: null
-      };
+        isLoggedIn: true,
+        isLoading: false,
+        error: null
+      }
     }
-    case AuthActionTypes.LOGIN_FAILURE: {
+
+    case AuthActionTypes.UPDATE_PROFILE_SUCCESS: {
       return {
-        ...state,
-        errorMessage: 'Incorrect email and/or password.'
-      };
+        ...state, 
+        user: action.payload.user,
+     };
     }
-    case AuthActionTypes.SIGNUP_SUCCESS: {
+
+    case AuthActionTypes.UPDATE_USER_ROLE: {
       return {
-        ...state,
-        isAuthenticated: true,
-        user: {
-          token: action.payload.token,
-          email: action.payload.email
-        },
-        errorMessage: null
+        ...state, 
+        isAdmin: action.payload.isAdmin
       };
     }
-    case AuthActionTypes.SIGNUP_FAILURE: {
+
+    case AuthActionTypes.LOGIN_FAILED: {
       return {
-        ...state,
-        errorMessage: 'That email is already in use.'
+        ...state, 
+        user: null,
+        isLoading: false,
+        isLoggedIn: false
       };
     }
-    case AuthActionTypes.LOGOUT: {
-      return initialState;
+
+    case AuthActionTypes.AUTH_ERROR: {
+      return { 
+        ...state,
+        error: action.payload.error
+      };
     }
-    default: {
+
+    case AuthActionTypes.LOGOUT_COMPLETED: {
+      return {
+        ...state, 
+        user: null,
+        isLoading: false,
+        isLoggedIn: false
+      }
+    }
+
+    default:
       return state;
-    }
   }
 }

@@ -1,0 +1,10 @@
+<div >
+    <img *ngIf="user.avatar" src="{{ user.avatar }}" height="96" width="96" alt="avatar image">
+</div>
+
+<h3 *ngIf="user.login">{{ user.login }}</h3>
+<h3 *ngIf="!user.login">Anonymous user</h3>
+
+<a (click)="onLogout()">
+    Logout
+  </a>

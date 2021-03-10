@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { EffectsModule } from '@ngrx/effects';
 
+import * as fromAuth from './store/auth.reducer';
 import { RegisterComponent } from './components/register/register.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AuthService } from './services/auth.service';
@@ -13,8 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthEffects } from './store/auth.effects';
 import { StoreModule } from '@ngrx/store';
-import { reducer } from './store/auth.reducer';
 import { ErrorInterceptor, TokenInterceptor } from './services/token.interceptor';
+import { AdminModule } from '../admin/admin.module';
 
 
 
@@ -29,8 +30,9 @@ import { ErrorInterceptor, TokenInterceptor } from './services/token.interceptor
     MatInputModule,
     MatButtonModule,
     HttpClientModule,
-    StoreModule.forRoot(reducer,{}),
-    EffectsModule.forRoot([AuthEffects]),
+    AdminModule,
+    StoreModule.forFeature('auth', fromAuth.authReducer),
+    EffectsModule.forFeature([AuthEffects]),
   ],
   declarations: [RegisterComponent, LoginComponent],
   providers: [

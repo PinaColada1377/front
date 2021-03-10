@@ -13,7 +13,9 @@ import { catchError } from 'rxjs/operators';
 
 
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TokenInterceptor implements HttpInterceptor {
     private authService: AuthService;
     constructor(private injector: Injector) {}
@@ -30,7 +32,9 @@ export class TokenInterceptor implements HttpInterceptor {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ErrorInterceptor implements HttpInterceptor {
     constructor(private router: Router) {}
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

@@ -1,0 +1,7 @@
+<form
+    [formGroup]="updateProfileForm"
+>
+    <input placeholder="New login" formControlName="login">
+
+    <button type="button" mdbBtn color="primary" (click)="onProfileUpdate()">Update profile</button>
+</form>

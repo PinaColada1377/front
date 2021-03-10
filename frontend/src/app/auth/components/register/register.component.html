@@ -25,6 +25,14 @@
             <input matInput placeholder="Password" type="password" formControlName="password">
         </mat-form-field>
 
+
+            <input placeholder="avatar" 
+                            type="file" 
+                            formControlName="avatar"
+                            (change)="onFileSelected($event)"
+                            >
+
+
         <button mat-flat-button color="primary" type="submit">Register</button>
 
     </div>

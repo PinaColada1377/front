@@ -1,1 +1,12 @@
-<p>admin works!</p>
+<h3>Admin panel</h3>
+
+<div *ngIf="!usersListLoading$ | async">
+    <span>Loading...</span>
+</div>
+
+<div *ngIf="!(usersListLoading$ | async)">
+    <app-user-list 
+        [users]="users$ | async"
+        >
+    </app-user-list>
+</div>

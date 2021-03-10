@@ -1,0 +1,10 @@
+<div>
+    <h3>Profile</h3>
+</div>
+
+<div>
+    <app-profile-user [user]="user$ | async" (logout)="logoutUser($event)"></app-profile-user>
+</div>
+<div>
+    <app-main-profile [user]="user$ | async" (profileUpdate)="updateProfile($event)"></app-main-profile>
+</div>

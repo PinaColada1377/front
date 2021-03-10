@@ -6,15 +6,8 @@ import { Observable,  of } from 'rxjs';
 import { map, switchMap, catchError, tap } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
-import { 
-  AuthActionTypes,
-  LogIn, 
-  LogInSuccess, 
-  LogInFailure,
-  SignUp,
-  SignUpSuccess, 
-  SignUpFailure 
-} from './auth.actions';
+import * as auth from './auth.actions';
+import { User } from '../models/user.interface';
 
 
 
@@ -24,85 +17,85 @@ import {
 export class AuthEffects {
 
   constructor(
-    private actions: Actions,
+    private actions$: Actions,
     private authService: AuthService,
     private router: Router,
   ) {}
 
   @Effect()
-  LogIn: Observable<any> = this.actions
+  registerAction$ = this.actions$.pipe(
+      ofType(auth.AuthActionTypes.REGISTER_REQUESTED),
+      map((action: auth.RegisterRequested) => action.payload),
+      switchMap(payload =>
+        this.authService.signUp(payload.login, payload.firstName, payload.lastName, payload.password, payload.email, payload.avatar).pipe(
+          map((res: any) => {
+            const user = {
+              login: payload.login || res.user.login,
+              firstName: payload.firstName || res.user.firstName,
+              lastName: payload.lastName || res.user.lastName,
+              password: payload.password || res.user.password,
+              email: payload.email || res.user.email,
+              avatar: payload.avatar || res.user.avatar,
+              token: res.token,
+              isAdmin: false,
+              isOnline: true
+            };
+            return user;
+          }),
+          switchMap( (user: User) => {
+            console.log(user);
+            localStorage.setItem('token', user.token);
+            return [
+              new auth.RegisterCompleted(),
+              new auth.LoginSuccess({user}),
+              new auth.UpdateProfile({ login: payload.login, avatar: payload.avatar }),
+              new auth.SaveUser( { user })
+            ];
+          }),
+          tap(() => {this.router.navigateByUrl('profile'); }),
+          catchError(error => of(new auth.AuthError({ error })))
+        )
+      )
+    );
+
+
+  @Effect()
+  loginAction$ = this.actions$
     .pipe(
-      ofType(AuthActionTypes.LOGIN),
-      map((action: LogIn) => action.payload),
+      ofType(auth.AuthActionTypes.LOGIN_REQUESTED),
+      map((action: auth.LoginRequested) => action.payload),
       switchMap(payload => {
         return this.authService.logIn(payload.login, payload.password)
         .pipe(
-          map((user) => {
-            console.log(user);
-            return new LogInSuccess({token: user.token, login: payload.email});
+          map((res: any) => {
+            const user = {
+              role: res.user.role,
+              login: res.user.login,
+              email: res.user.email,
+              avatar: res.user.avatar,
+              token: res.token
+            };
+            return new auth.LoginSuccess({user});
           }),
           catchError((error) => {
             console.log(error);
-            return of (new LogInFailure({ error: error}))
+            return of (new auth.AuthError({ error: error}))
           })
         )
       })
     )
-
-  @Effect({ dispatch: false })
-    LogInSuccess: Observable<any> = this.actions.pipe(
-      ofType(AuthActionTypes.LOGIN_SUCCESS),
-      tap((user) => {
-        localStorage.setItem('token', user.payload.token);
-        this.router.navigateByUrl('/');
-    })
-  );
-
-  @Effect({ dispatch: false })
-    LogInFailure: Observable<any> = this.actions.pipe(
-      ofType(AuthActionTypes.LOGIN_FAILURE)
-  );
 
   @Effect()
-  SignUp: Observable<any> = this.actions
-    .pipe(
-      ofType(AuthActionTypes.SIGNUP),
-      map((action: SignUp) => action.payload),
-      switchMap(payload => {
-        return this.authService.signUp(payload.login, payload.firstName, payload.lastName, payload.password, payload.email)
-        .pipe(
-          map((user) => {
-            console.log(user);
-            return new SignUpSuccess({token: user.token, login: payload.login});
-          }),
-          catchError((error) => {
-            console.log(error);
-            return of (new SignUpFailure({ error: error}))
-          })
-        )
-      })
-    )
-
-  @Effect({ dispatch: false })
-    SignUpSuccess: Observable<any> = this.actions.pipe(
-      ofType(AuthActionTypes.SIGNUP_SUCCESS),
-      tap((user) => {
-        localStorage.setItem('token', user.payload.token);
-        this.router.navigateByUrl('/');
-      })
-    );
-
-  @Effect({ dispatch: false })
-    SignUpFailure: Observable<any> = this.actions.pipe(
-      ofType(AuthActionTypes.SIGNUP_FAILURE)
-    );
-
-  @Effect({ dispatch: false })
-    public LogOut: Observable<any> = this.actions.pipe(
-      ofType(AuthActionTypes.LOGOUT),
-      tap((user) => {
-        localStorage.removeItem('token');
-      })
-    );
-
+  loginSuccess$ = this.actions$.pipe(
+    ofType(auth.AuthActionTypes.LOGIN_SUCCESS),
+    map( (action: auth.SaveUser) => action.payload),
+    switchMap( (payload: any) => {
+        localStorage.setItem('token', payload.user.token);
+        this.router.navigateByUrl('profile');
+        return [
+          new auth.UpdateOnlineStatus({ role: payload.user.role, status: true }),
+          new auth.CheckUserRole( {role: payload.user.role })
+        ];
+    })
+  );
 }

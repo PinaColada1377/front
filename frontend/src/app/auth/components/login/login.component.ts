@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { LogIn } from '../../store/auth.actions';
-import { selectAuthState } from '../../store/auth.selectors';
+import * as actions from './../../store/auth.actions';
 import { AuthState } from '../../store/auth.state';
+import { map } from 'rxjs/operators';
+import { getError } from '../../store/auth.selectors';
 
 
 @Component({
@@ -15,17 +16,27 @@ import { AuthState } from '../../store/auth.state';
 export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
-  getState: Observable<any>;
+  error$: Observable<string | null>;
 
-  constructor(private store: Store<AuthState>) { 
-    this.getState = this.store.select(selectAuthState)
-  }
+  constructor(private store: Store<{}>) {}
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       login: new FormControl,
       password: new FormControl('', [Validators.required, Validators.minLength(3)])
     });
+
+    this.error$ = this.store
+    .pipe(
+      select(getError),
+      map( (error: any) => {
+        if (error && (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password')) {
+          return 'Invalid login or password';
+        } else {
+          return null;
+        }
+      })
+    );
   }
 
   
@@ -34,7 +45,7 @@ export class LoginComponent implements OnInit {
       login: this.loginForm.value.login,
       password: this.loginForm.value.password
     };
-    this.store.dispatch(new LogIn(payload))
+    this.store.dispatch(new actions.LoginRequested(payload))
   }
 
 }

@@ -1,18 +1,17 @@
 import { User } from "../models/user.interface";
 
-export interface State {
-  isAuthenticated: boolean;
-  user: User | null;
-  errorMessage: string | null;
-}
-
-export const initialState: State = {
-  isAuthenticated: false,
-  user: null,
-  errorMessage: null
-};
-
-
 export interface AuthState {
-  authState: State;
+  user: User | null;
+  isAdmin: boolean;
+  isLoggedIn: boolean;
+  isLoading: boolean;
+  error: any;
 }
+
+export const authInitialState: AuthState = {
+  user: null,
+  isAdmin: false,
+  isLoggedIn: false,
+  isLoading: true,
+  error: null
+};

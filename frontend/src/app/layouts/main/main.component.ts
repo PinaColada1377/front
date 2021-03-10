@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { LogOut } from 'src/app/auth/store/auth.actions';
+
 
 
 @Component({
@@ -17,6 +17,6 @@ export class MainComponent implements OnInit {
   }
 
   logOut(): void {
-    this.store.dispatch(new LogOut)
+    //this.store.dispatch()
   }
 }
